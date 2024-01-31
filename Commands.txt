@@ -1,0 +1,7 @@
+Diese Datei enthält Beispielbefehle für die einzelnen Skripts.
+
+create_capture_data.py --footage-path D:\Aufnahmen\LiveLinkFace_20231029_MySlate_2_iPhone --using-livelinkface-data --storage-path /Game/MetaHumans/Footage_Test
+
+create_identity_for_performance.py --neutral-frame 25 60 125 --capture-data-path /Game/MetaHumans/Footage_Test/MetaHumanCaptureSourceSync_0_Ingested/MySlate_2-CD --storage-path /Game/MetaHumans/Footage_Test
+
+create_identity_from_footage.py --footage-path D:\Aufnahmen\LiveLinkFace_20231105_MySlate_6_iPhone --storage-path-CD  /Game/MetaHumans/Footage_Test --neutral-frames 108 75 126 --storage-path-MHI /Game/MetaHumans/Footage_Test
