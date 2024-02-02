@@ -63,10 +63,12 @@ def create_identity_from_frame(neutral_frames : list, capture_source_asset_path 
 
     pose.load_default_tracker()
     
+    #Diese Variable ist dafür da, dass beim ersten Frame der Schleife das Attribut is_front_view = True gesetzt wird.
     first_frame = True
     
     MetaHuman_identity_asset.set_blocking_processing(True)
    
+    #Diese Schleife legt für jedes im Parameter angegebene Bild einen Frame in der Pose der MetaHumanIdentity an.
     for i,nframe in enumerate(neutral_frames):
         frame, index = pose.add_new_promoted_frame()
         if first_frame:
@@ -87,6 +89,7 @@ def create_identity_from_frame(neutral_frames : list, capture_source_asset_path 
                 
                 # Running tracking pipeline to get contour data for image retrieved from disk
                 MetaHuman_identity_asset.start_frame_tracking_pipeline(local_samples, image_size.x, image_size.y, frame, show_progress)
+                #Dieser Aufruf von conform() wird nach jedem erstellten Frame ausgeführt, da ansonsten die Tracker nicht richtig funktionieren.
                 face.conform()
 
         else:
@@ -95,29 +98,19 @@ def create_identity_from_frame(neutral_frames : list, capture_source_asset_path 
     
     print("Face has been conformed")
     body: unreal.MetaHumanIdentityBody = MetaHuman_identity_asset.get_or_create_part_of_class(unreal.MetaHumanIdentityBody)
+    #Mit dieser Variable wird der Körpertyp des Avatares gesetzt.
     body.body_type_index = 3
 
+    log_only_no_dialogue = True
+    
     if(MetaHuman_identity_asset.is_logged_in_to_service()):
        print("Calling AutoRig service to create a DNA for identity")
        MetaHuman_identity_asset.on_auto_rig_service_finished.add_callable(process_autorig_service_response)
-       add_to_MetaHuman_creator = False
+       add_to_MetaHuman_creator = True
        MetaHuman_identity_asset.create_dna_for_identity(add_to_MetaHuman_creator, log_only_no_dialogue)
 
     else:
           unreal.log_error("Please make sure you are logged in to MetaHuman service")
-
-
-def create_identity_from_dna_file(path_to_dna_file : str, path_to_Json : str, asset_storage_location : str, identity_name : str) :
-    asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
-    Metahuman_idenditiy_asset = asset_tools.create_asset(asset_name=identity_name, package_path=asset_storage_location, asset_class=unreal.MetaHumanIdentity, factory=unreal.MetaHumanIdentityFactoryNew())
-    Metahuman_idenditiy_asset.get_or_create_part_of_class(unreal.MetaHumanIdentityFace)
-
-    dna_type = unreal.DNADataLayer.ALL
-    import_error: unreal.IdentityErrorCode = Metahuman_idenditiy_asset.import_dna_file(path_to_dna_file, dna_type, path_to_Json)
-    if import_error == unreal.IdentityErrorCode.NONE:
-        prepare_identity_for_performance(Metahuman_idenditiy_asset)
-    else:
-        unreal.log_error('Selected DNA and Json files are not compatible with this plugin')
 
 def run():
 
